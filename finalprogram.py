@@ -12,7 +12,8 @@ def save_book():
     cursor.execute(query, (title, author, year))
     cnx.commit()
     # Add the book to the list
-    book_list.insert(tk.END, title)
+    #book_list.insert(tk.END, title)
+    tree.insert('', tk.END, (title, author, year))
 
 
 # Connect to the database
@@ -29,39 +30,52 @@ book_frame.pack()
 
 # Add a label and a scrollbar for the book list
 tk.Label(book_frame, text="Book List:").pack(side=tk.TOP)
-scrollbar = tk.Scrollbar(book_frame)
-scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+#scrollbar = tk.Scrollbar(book_frame)
+#scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+scrollbar = ttk.Scrollbar(root, orient=tk.VERTICAL, command=tree.yview)
+tree.configure(yscroll=scrollbar.set)
+scrollbar.grid(row=0, column=1, sticky='ns')
 
-# Delete Button
+# Delete Button (For Book list)
+#def delete():
+#    global cursor
+#    global book_list
+#    item = book_list.curselection()
+#    if not item:
+#        box.showerror('Error', 'Please select a record')
+#        return
+#    key = book_list.get(item)
+#    cursor.execute(f'DELETE FROM books WHERE title="{key}"')
+#    cnx.commit()
+#    book_list.delete(item)
+
+# Delete Button (For Tree view)
 def delete():
-    global cursor
-    global book_list
-    item = book_list.curselection()
-    if not item:
-        box.showerror('Error', 'Please select a record')
-        return
-    key = book_list.get(item)
-    cursor.execute(f'DELETE FROM books WHERE title="{key}"')
-    cnx.commit()
-    book_list.delete(item)
+    global cursor;
+    global tree;
+    for selected_item in tree.selection():
+        tree.delete(selected_item)
 
 tk.Button(book_frame, text="Delete", command=delete).pack(side = tk.RIGHT, fill=tk.Y)
 
 # Add a listbox to display the book list
-book_list = tk.Listbox(book_frame, yscrollcommand=scrollbar.set)
-book_list.pack(side=tk.LEFT, fill=tk.BOTH)
-scrollbar.config(command=book_list.yview)
+#book_list = tk.Listbox(book_frame, yscrollcommand=scrollbar.set)
+#book_list.pack(side=tk.LEFT, fill=tk.BOTH)
+#scrollbar.config(command=book_list.yview)
 
-# Tree
-#tree = ttk.Treeview(book_frame, '', ('Title', 'Author', 'Year'), height=100, name='Book List')
-#tree.pack(side=tk.LEFT)
+#Tree
+tree = ttk.Treeview(book_frame, '', ('Title', 'Author', 'Year'), height=100, name='Book List')
+tree.heading('book_name', text='Book Name')
+tree.heading('author', text='Author')
+tree.heading('year', text='Year')
+tree.pack(side=tk.LEFT)
 
 # Populate the book list
 cursor = cnx.cursor()
 query = "SELECT title FROM books"
 cursor.execute(query)
 for (title,) in cursor:
-    book_list.insert(tk.END, title)
+    tree.insert(tk.END, title)
 
 # Add a frame for the buttons
 button_frame = tk.Frame(window)
