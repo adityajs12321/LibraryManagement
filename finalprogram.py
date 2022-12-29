@@ -13,7 +13,7 @@ def save_book():
     cnx.commit()
     # Add the book to the list
     #book_list.insert(tk.END, title)
-    tree.insert('', tk.END, (title, author, year))
+    tree.insert('', tk.END, values=(title, author, year))
 
 
 # Connect to the database
@@ -32,9 +32,7 @@ book_frame.pack()
 tk.Label(book_frame, text="Book List:").pack(side=tk.TOP)
 #scrollbar = tk.Scrollbar(book_frame)
 #scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-scrollbar = ttk.Scrollbar(book_frame, orient=tk.VERTICAL, command=tree.yview)
-tree.configure(yscroll=scrollbar.set)
-scrollbar.grid(row=0, column=1, sticky='ns')
+
 
 # Delete Button (For Book list)
 #def delete():
@@ -53,8 +51,17 @@ scrollbar.grid(row=0, column=1, sticky='ns')
 def delete():
     global cursor;
     global tree;
+    print(key)
+    cursor.execute(f'delete from books where title="{key}"')
+    cnx.commit()
     for selected_item in tree.selection():
         tree.delete(selected_item)
+    if not tree.selection():
+        box.showerror('Error', 'Please select a record')
+        return
+    
+    
+
 
 tk.Button(book_frame, text="Delete", command=delete).pack(side = tk.RIGHT, fill=tk.Y)
 
@@ -64,18 +71,21 @@ tk.Button(book_frame, text="Delete", command=delete).pack(side = tk.RIGHT, fill=
 #scrollbar.config(command=book_list.yview)
 
 #Tree
-tree = ttk.Treeview(book_frame, '', ('Title', 'Author', 'Year'), height=100, name='Book List')
-tree.heading('book_name', text='Book Name')
-tree.heading('author', text='Author')
-tree.heading('year', text='Year')
+tree = ttk.Treeview(book_frame, columns=('Title', 'Author', 'Year'), show='headings')
+tree.heading('Title', text='Book Name')
+tree.heading('Author', text='Author')
+tree.heading('Year', text='Year')
 tree.pack(side=tk.LEFT)
+scrollbar = ttk.Scrollbar(book_frame, orient=tk.VERTICAL, command=tree.yview)
+tree.configure(yscroll=scrollbar.set)
+scrollbar.pack(side=tk.RIGHT)
 
 # Populate the book list
 cursor = cnx.cursor()
-query = "SELECT title FROM books"
+query = "SELECT * FROM books"
 cursor.execute(query)
-for (title,) in cursor:
-    tree.insert(tk.END, title)
+for (title,author, year) in cursor:
+    tree.insert('', tk.END, values=(title ,author, year))
 
 # Add a frame for the buttons
 button_frame = tk.Frame(window)
