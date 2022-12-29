@@ -32,7 +32,7 @@ book_frame.pack()
 tk.Label(book_frame, text="Book List:").pack(side=tk.TOP)
 #scrollbar = tk.Scrollbar(book_frame)
 #scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-scrollbar = ttk.Scrollbar(root, orient=tk.VERTICAL, command=tree.yview)
+scrollbar = ttk.Scrollbar(book_frame, orient=tk.VERTICAL, command=tree.yview)
 tree.configure(yscroll=scrollbar.set)
 scrollbar.grid(row=0, column=1, sticky='ns')
 
