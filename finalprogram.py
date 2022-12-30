@@ -51,16 +51,15 @@ tk.Label(book_frame, text="Book List:").pack(side=tk.TOP)
 def delete():
     global cursor;
     global tree;
-    print(key)
-    cursor.execute(f'delete from books where title="{key}"')
-    cnx.commit()
-    for selected_item in tree.selection():
-        tree.delete(selected_item)
     if not tree.selection():
         box.showerror('Error', 'Please select a record')
         return
-    
-    
+    for selected_item in tree.selection():
+        key = tree.item(selected_item)['values'][0]
+        cursor.execute(f'delete from books where title = "{key}"')
+        cnx.commit()
+    for selected_item in tree.selection():
+        tree.delete(selected_item)  
 
 
 tk.Button(book_frame, text="Delete", command=delete).pack(side = tk.RIGHT, fill=tk.Y)
