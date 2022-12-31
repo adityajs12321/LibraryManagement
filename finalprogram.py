@@ -17,7 +17,7 @@ def save_book():
 
 
 # Connect to the database
-cnx = mysql.connector.connect(user='root', password='<password>',
+cnx = mysql.connector.connect(user='root', password='<password>', #<password>
                               host='localhost', database='library')
 
 # Create the main window
@@ -61,6 +61,26 @@ def delete():
     for selected_item in tree.selection():
         tree.delete(selected_item)  
 
+def find():
+    global keyword
+    global cursor
+    global tree
+    s = keyword.get()
+    if s:
+        for child in tree.get_children():
+            tree.delete(child)
+        cursor.execute(f'select * from books where title like "%{s}%"')
+        for (title, author, year) in cursor:
+            tree.insert('', tk.END, values=(title, author, year))
+
+def cancel():
+    global cursor
+    global tree
+    for child in tree.get_children():
+        tree.delete(child)
+    cursor.execute(f'select * from books')
+    for (title, author, year) in cursor:
+        tree.insert('', tk.END, values=(title, author, year))
 
 tk.Button(book_frame, text="Delete", command=delete).pack(side = tk.RIGHT, fill=tk.Y)
 
@@ -78,6 +98,13 @@ tree.pack(side=tk.LEFT)
 scrollbar = ttk.Scrollbar(book_frame, orient=tk.VERTICAL, command=tree.yview)
 tree.configure(yscroll=scrollbar.set)
 scrollbar.pack(side=tk.RIGHT)
+
+tk.Label(book_frame, text='Search').pack(side=tk.LEFT)
+keyword = tk.Entry(book_frame)
+keyword.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
+keyword.focus_set()
+tk.Button(book_frame, text='Search', command=find).pack(side=tk.RIGHT)
+tk.Button(book_frame, text='Cancel Search', command=cancel).pack(side=tk.RIGHT)
 
 # Populate the book list
 cursor = cnx.cursor()
@@ -109,6 +136,29 @@ tk.Label(book_window, text="Year:").grid(row=2, column=0)
 year_entry = tk.Entry(book_window)
 year_entry.grid(row=2, column=1)
 tk.Button(book_window, text="Save", command=save_book).grid(row=5, column=3)
+lst = []
+for child in tree.get_children():        
+       lst.append(tree.item(child)["values"][0])
+
+#Searchbox
+def Search(name):
+    val=name.widget.get()
+    print(val)
+
+    if val=='':
+        data=lst
+    else:
+        data=[]
+        for item in lst:
+            if val.lower() in item.lower():
+                data.append(item)
+    Update(data)
+
+def Update(data):
+    listbox.delete(0,'end')
+
+    for item in data:
+        listbox.insert('end',item)
 
 tk.mainloop()
 #prawnsux
