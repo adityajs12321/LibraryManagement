@@ -82,7 +82,7 @@ def cancel():
     for (title, author, year) in cursor:
         tree.insert('', tk.END, values=(title, author, year))
 
-tk.Button(book_frame, text="Delete", command=delete).pack(side = tk.RIGHT, fill=tk.Y)
+tk.Button(book_frame, text="Delete", command=delete).pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
 # Add a listbox to display the book list
 #book_list = tk.Listbox(book_frame, yscrollcommand=scrollbar.set)
@@ -94,7 +94,7 @@ tree = ttk.Treeview(book_frame, columns=('Title', 'Author', 'Year'), show='headi
 tree.heading('Title', text='Book Name')
 tree.heading('Author', text='Author')
 tree.heading('Year', text='Year')
-tree.pack(side=tk.LEFT)
+tree.pack(side=tk.BOTTOM)
 scrollbar = ttk.Scrollbar(book_frame, orient=tk.VERTICAL, command=tree.yview)
 tree.configure(yscroll=scrollbar.set)
 scrollbar.pack(side=tk.RIGHT)
