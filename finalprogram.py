@@ -7,17 +7,21 @@ def save_book():
     # Insert the book into the database
     title = title_entry.get()
     author = author_entry.get()
-    year = year_entry.get()
-    query = "INSERT INTO books (title, author, year) VALUES (%s, %s, %s)"
-    cursor.execute(query, (title, author, year))
+    genre = genre_entry.get()
+    if not year_entry.get().isnumeric():
+        box.showerror('Error', 'Please enter a valid year')
+        return
+    year = int(year_entry.get())
+    query = "INSERT INTO books (title, author, genre, year) VALUES (%s, %s, %s, %s)"
+    cursor.execute(query, (title, author, genre, year))
     cnx.commit()
     # Add the book to the list
     #book_list.insert(tk.END, title)
-    tree.insert('', tk.END, values=(title, author, year))
+    tree.insert('', tk.END, values=(title, author, genre, year))
 
 
 # Connect to the database
-cnx = mysql.connector.connect(user='root', password='<password>', #<password>
+cnx = mysql.connector.connect(user='root', password='Deletetheendoftheworld1233', #<password>
                               host='localhost', database='library')
 
 # Create the main window
@@ -70,8 +74,8 @@ def find():
         for child in tree.get_children():
             tree.delete(child)
         cursor.execute(f'select * from books where title like "%{s}%"')
-        for (title, author, year) in cursor:
-            tree.insert('', tk.END, values=(title, author, year))
+        for (title, author, genre, year) in cursor:
+            tree.insert('', tk.END, values=(title, author, genre, year))
 
 def cancel():
     global cursor
@@ -79,8 +83,8 @@ def cancel():
     for child in tree.get_children():
         tree.delete(child)
     cursor.execute(f'select * from books')
-    for (title, author, year) in cursor:
-        tree.insert('', tk.END, values=(title, author, year))
+    for (title, author, genre, year) in cursor:
+        tree.insert('', tk.END, values=(title, author, genre, year))
 
 tk.Button(book_frame, text="Delete", command=delete).pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
@@ -90,9 +94,10 @@ tk.Button(book_frame, text="Delete", command=delete).pack(side=tk.RIGHT, fill=tk
 #scrollbar.config(command=book_list.yview)
 
 #Tree
-tree = ttk.Treeview(book_frame, columns=('Title', 'Author', 'Year'), show='headings')
+tree = ttk.Treeview(book_frame, columns=('Title', 'Author', 'Genre', 'Year'), show='headings')
 tree.heading('Title', text='Book Name')
 tree.heading('Author', text='Author')
+tree.heading('Genre', text='Genre')
 tree.heading('Year', text='Year')
 tree.pack(side=tk.BOTTOM)
 scrollbar = ttk.Scrollbar(book_frame, orient=tk.VERTICAL, command=tree.yview)
@@ -108,10 +113,11 @@ tk.Button(book_frame, text='Cancel Search', command=cancel).pack(side=tk.RIGHT)
 
 # Populate the book list
 cursor = cnx.cursor()
+cursor.execute("create table if not exists books(Title varchar(50), Author varchar(20), Genre varchar(25), Year int)")
 query = "SELECT * FROM books"
 cursor.execute(query)
-for (title,author, year) in cursor:
-    tree.insert('', tk.END, values=(title ,author, year))
+for (title,author, genre, year) in cursor:
+    tree.insert('', tk.END, values=(title ,author, genre, year))
 
 # Add a frame for the buttons
 button_frame = tk.Frame(window)
@@ -132,33 +138,13 @@ title_entry.grid(row=0, column=1)
 tk.Label(book_window, text="Author:").grid(row=1, column=0)
 author_entry = tk.Entry(book_window)
 author_entry.grid(row=1, column=1)
-tk.Label(book_window, text="Year:").grid(row=2, column=0)
+tk.Label(book_window, text="Genre:").grid(row=2, column=0)
+genre_entry = tk.Entry(book_window)
+genre_entry.grid(row=2, column=1)
+tk.Label(book_window, text="Year:").grid(row=3, column=0)
 year_entry = tk.Entry(book_window)
-year_entry.grid(row=2, column=1)
-tk.Button(book_window, text="Save", command=save_book).grid(row=5, column=3)
-lst = []
-for child in tree.get_children():        
-       lst.append(tree.item(child)["values"][0])
-
-#Searchbox
-def Search(name):
-    val=name.widget.get()
-    print(val)
-
-    if val=='':
-        data=lst
-    else:
-        data=[]
-        for item in lst:
-            if val.lower() in item.lower():
-                data.append(item)
-    Update(data)
-
-def Update(data):
-    listbox.delete(0,'end')
-
-    for item in data:
-        listbox.insert('end',item)
+year_entry.grid(row=3, column=1)
+tk.Button(book_window, text="Save", command=save_book).grid(rowspan=5, column=3)
 
 tk.mainloop()
 #prawnsux
