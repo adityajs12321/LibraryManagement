@@ -21,7 +21,7 @@ def save_book():
 
 
 # Connect to the database
-cnx = mysql.connector.connect(user='root', password='Deletetheendoftheworld1233', #<password>
+cnx = mysql.connector.connect(user='root', password='<password>', #<password>
                               host='localhost', database='library')
 
 # Create the main window
@@ -144,7 +144,7 @@ genre_entry.grid(row=2, column=1)
 tk.Label(book_window, text="Year:").grid(row=3, column=0)
 year_entry = tk.Entry(book_window)
 year_entry.grid(row=3, column=1)
-tk.Button(book_window, text="Save", command=save_book).grid(rowspan=5, column=3)
+tk.Button(book_window, height=8, width=2, text="Save", command=save_book).grid(row=0, column=3, rowspan=4)
 
 tk.mainloop()
 #prawnsux
