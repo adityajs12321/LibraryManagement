@@ -2,6 +2,64 @@ import tkinter as tk
 import mysql.connector
 import tkinter.messagebox as box
 from tkinter import ttk
+from PIL import Image, ImageTk
+import threading
+
+def center(win):
+    """
+    centers a tkinter window
+    :param win: the main window or Toplevel window to center
+    """
+    win.update_idletasks()
+    width = win.winfo_width()
+    frm_width = win.winfo_rootx() - win.winfo_x()
+    win_width = width + 2 * frm_width
+    height = win.winfo_height()
+    titlebar_height = win.winfo_rooty() - win.winfo_y()
+    win_height = height + titlebar_height + frm_width
+    x = win.winfo_screenwidth() // 2 - win_width // 2
+    y = win.winfo_screenheight() // 2 - win_height // 2
+    win.geometry('{}x{}+{}+{}'.format(width, height, x, y))
+    win.deiconify()
+
+#Splash Screen
+splash_root = tk.Tk()
+splash_root.geometry('300x250')
+window = tk.Tk()
+window.title("Library Book Manager")
+book_window = tk.Toplevel(window)
+book_window.withdraw()
+window.withdraw()
+splash_root.overrideredirect(True)
+splash_root.attributes('-topmost', True)
+center(splash_root)
+
+
+image = Image.open('/Users/sunil390/Documents/GitHub/LibraryManagement/icon.png')
+img = image.resize((200,200))
+my_img = ImageTk.PhotoImage(img)
+tk.Label(splash_root, image = my_img).pack()
+lol = tk.Label(splash_root, text='Simplifying Software', font='Terminal 15 italic')
+#lol.place(relx=0, rely=20, anchor=tk.CENTER)
+lol.pack(side=tk.BOTTOM)
+def main():
+    global splash_root
+    global window
+    global book_window
+    splash_root.destroy()
+    window.deiconify()
+    center(window)
+    book_window.deiconify()
+i=1
+def update():
+    threading.Timer(0.5, update).start()
+    global i 
+    global lol
+    lol['text'] = lol['text'][:20] + i%3*'.'
+    i+=1
+splash_root.after(0, update)
+
+splash_root.after(5000, main)
 
 def save_book():
     # Insert the book into the database
@@ -18,15 +76,16 @@ def save_book():
     # Add the book to the list
     #book_list.insert(tk.END, title)
     tree.insert('', tk.END, values=(title, author, genre, year))
-
-
+    title_entry.delete(0, tk.END)
+    genre_entry.delete(0, tk.END)
+    author_entry.delete(0, tk.END)
+    year_entry.delete(0, tk.END)
 # Connect to the database
 cnx = mysql.connector.connect(user='root', password='<password>', #<password>
                               host='localhost', database='library')
 
 # Create the main window
-window = tk.Tk()
-window.title("Library Book Manager")
+
 
 # Add a frame for the book list
 book_frame = tk.Frame(window)
@@ -130,7 +189,6 @@ year_entry = None
 # Add a button to add a book
 
 # Display a dialog to get the book details
-book_window = tk.Toplevel(window)
 book_window.title("Add Book")
 tk.Label(book_window, text="Title:").grid(row=0, column=0)
 title_entry = tk.Entry(book_window)
