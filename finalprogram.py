@@ -4,6 +4,12 @@ import tkinter.messagebox as box
 from tkinter import ttk
 from PIL import Image, ImageTk
 import threading
+import os
+
+class RepeatTimer(threading.Timer):
+    def run(self):
+        while not self.finished.wait(self.interval):
+            self.function(*self.args, **self.kwargs)
 
 def center(win):
     """
@@ -35,30 +41,35 @@ splash_root.attributes('-topmost', True)
 center(splash_root)
 
 
-image = Image.open('/Users/sunil390/Documents/GitHub/LibraryManagement/icon.png')
+image = Image.open(f'{os.getcwd()}/icon.png')
 img = image.resize((200,200))
 my_img = ImageTk.PhotoImage(img)
-tk.Label(splash_root, image = my_img).pack()
-lol = tk.Label(splash_root, text='Simplifying Software', font='Terminal 15 italic')
+lol1 = tk.Label(splash_root, image = my_img)
+lol1.pack()
+lol = tk.Label(splash_root, text='Simplifying Software.', font='Terminal 15 italic')
 #lol.place(relx=0, rely=20, anchor=tk.CENTER)
 lol.pack(side=tk.BOTTOM)
 def main():
+    global t
     global splash_root
     global window
     global book_window
+    lol.destroy()
+    lol1.destroy()
+    t.cancel()
     splash_root.destroy()
     window.deiconify()
     center(window)
     book_window.deiconify()
 i=1
+
 def update():
-    threading.Timer(0.5, update).start()
     global i 
     global lol
-    lol['text'] = lol['text'][:20] + i%3*'.'
+    lol['text'] = lol['text'][:21] + i%3*'.'
     i+=1
-splash_root.after(0, update)
-
+t = RepeatTimer(0.5, update)
+splash_root.after(0, t.start())
 splash_root.after(5000, main)
 
 def save_book():
